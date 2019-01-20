@@ -9,4 +9,4 @@ sensor = adafruit_bno055.BNO055(i2c)
 
 while True:
 	print(sensor.linear_acceleration)
-	time.sleep(1)
+#	time.sleep(1)
