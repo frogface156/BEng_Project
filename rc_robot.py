@@ -38,6 +38,7 @@ headlight_l = 31
 
 
 # Pygame init stuff
+os.putenv('SDL_VIDEODRIVER', 'fbcon')
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 pygame.init()
 # Dummy screen init (required by pygame...)
