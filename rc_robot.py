@@ -1,4 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+
+# MUST RUN AS ROOT!!
 
 # adds left stick movement functionality
 
@@ -17,11 +19,11 @@ alert_mode = False
 
 # pin references
 in_1 = 13
-in_2 = 11
-in_3 = 7
-in_4 = 12
-en_a = 15
-en_b = 21
+in_2 = 12
+in_3 = 11
+in_4 = 7
+en_a = 21
+en_b = 15
 
 trig = 18
 echo = 22
@@ -42,7 +44,7 @@ os.putenv('SDL_VIDEODRIVER', 'fbcon')
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 pygame.init()
 # Dummy screen init (required by pygame...)
-screen = pygame.display.set_mode((1,1))
+#screen = pygame.display.set_mode((1,1))
 #Loop until the user clicks the PS (or another?) button.
 done = False
 # Initialize the joysticks
