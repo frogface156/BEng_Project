@@ -2,7 +2,7 @@ import imu_sensor
 import csv
 import time
 
-dt = 0.02
+dt = 0.01
 file_path = 'sensor_tests/log1.csv'
 counter = 0
 start_time = time.time()

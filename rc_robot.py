@@ -18,10 +18,10 @@ verbose_mode = True
 alert_mode = False
 
 # pin references
-in_1 = 13
-in_2 = 12
-in_3 = 11
-in_4 = 7
+in_1 = 12
+in_2 = 13
+in_3 = 7
+in_4 = 11
 en_a = 21
 en_b = 15
 
@@ -45,7 +45,7 @@ os.environ["SDL_VIDEODRIVER"] = "dummy"
 pygame.init()
 # Dummy screen init (required by pygame...)
 #screen = pygame.display.set_mode((1,1))
-#Loop until the user clicks the PS (or another?) button.
+# Loop until the user clicks the PS (or another?) button.
 done = False
 # Initialize the joysticks
 pygame.joystick.init()
@@ -62,7 +62,7 @@ spin_right = ["spin right", False, True, False, True]
 
 class robot():
 	def __init__(self): # potentially take in the controller as a parameter and use for the joystick stuff...
-		
+
 		# General variables (joystick, speed, freq, states etc.)
 		self.joy_x_l = 0 # initializes joystick variables
 		self.joy_y_l = 0
@@ -73,7 +73,7 @@ class robot():
 		self.last_time_loop = 0
 		self.last_time_headlights = 0
 		self.triangle_button = 0 # initializing button state
-		
+
 		# Servo duty values - specific to this robot / servo
 		self.servo_0 = 11.9
 		self.servo_180 = 3.7
@@ -94,7 +94,7 @@ class robot():
 		self.spin_left = ["spin left", True, False, True, False]
 		self.spin_right = ["spin right", False, True, False, True]
 		self.stopped = ["stopped", False, False, False, False]
-		
+
 		# Init stuff
 		gpio_setup()
 		self.en_a_pwm = gpio.PWM(en_a, self.motor_freq)
