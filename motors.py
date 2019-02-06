@@ -8,6 +8,8 @@ class encoder_handler(object):
 		self.lb_pin = 38
 		self.ra_pin = 32
 		self.rb_pin = 26
+		self.track_width = 200 # mm
+		self.wheel_diameter = 70 # mm
 		self.ticks = [0, 0]
 		self.ticks_last = [0, 0]
 		self.tick_count = [0, 0]

@@ -1,12 +1,11 @@
 import numpy as np
-import random
 import time
 
 x_0 = 0
 y_0 = 0
 theta = 0
 alpha = 0
-w = 30 # cm
+w = 200 # cm
 
 ticks_to_mm_factor = 0.9044025
 

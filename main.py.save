@@ -33,33 +33,23 @@ enc = encoders.encoder_handler()
 # arduino = i2c_class.I2C(0x08)
 # imu = i2c_class.I2C(0x40)
 
-ticks, ticks_last, ticks_dt = [0, 0], [0, 0], [0, 0]
-
-def get_ticks_dt(ticks, ticks_last):
-#	print("TEST: Ticks - {}\t Ticks_Last: {}".format(ticks, ticks_last))
-	ticks_dt[0] = ticks[0] - ticks_last[0]
-	ticks_dt[1] = ticks[1] - ticks_last[1]
-	return ticks_dt
-
+overall_tick_count = [0, 0]
+dt_ticks = [0, 0]
 
 while True:
 	if (dt_end - dt_start) >= dt:
 		time_at_reading = time.time() - start_time
-#		motor_ticks[0] = enc.last_ticks[0] + enc.dt_ticks[0]
-		ticks_dt = get_ticks_dt(ticks, ticks_last)
-		print("Ticks: {}\tLast Ticks: {}\tDt Ticks: {}".format(ticks, ticks_last, ticks_dt))
-#		motor_ticks[1] = enc.last_ticks[1] + enc.dt_ticks[1]
+		motor_ticks[0] = enc.last_ticks[0] + enc.dt_ticks[0]
+		print("Motor Ticks: {}\tLast Ticks: {}\tDt Ticks: {}".format(motor_ticks[0], enc.last_ticks[0], enc.dt_ticks))
+		motor_ticks[1] = enc.last_ticks[1] + enc.dt_ticks[1]
 #		print("L: {}\tR: {}".format(enc.dt_ticks[0], enc.dt_ticks[1]))
 #		X, theta = emt.return_new_pose(X, theta, enc.dt_ticks[0], enc.dt_ticks[1])
 #		print("x: {}\ty: {}\ttheta: {}".format(X[0], X[1], theta))
-		rl.log_motor_ticks(log_file_path, time_at_reading, ticks)
+		rl.log_motor_ticks(log_file_path, time_at_reading, motor_ticks)
 #		enc.print_ticks()
 #		print("Time: {}s".format(time_at_reading))
 		dt_start = time.time()
-		ticks_last = ticks
-		print("TEST - Last Ticks: {}".format(ticks_last))
-		ticks = enc.update()
-		print("TEST - Ticks: {}".format(ticks))
+		enc.update(reset_motor_ticks=True)
 	else:
 		enc.update()
 
