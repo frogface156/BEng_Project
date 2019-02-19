@@ -9,10 +9,13 @@ w = 200 # cm
 
 ticks_to_mm_factor = 0.9044025
 
-def compute_alpha_and_R(r, l):
+def compute_alpha(r, l):
 	alpha = (r - l)/w
-	R = l/alpha
-	return alpha, R
+	return alpha
+
+def compute_radius(alpha):
+	rad = 1/alpha
+	return rad
 
 def compute_sin_and_cos(theta, alpha):
 	new_theta = (theta + alpha)%2*np.pi
@@ -30,9 +33,10 @@ def return_new_pose(X, theta, l, r): # takes l and r in mm NOT ticks
 		return X, new_theta
 	else:
 		l, r = ticks_to_mm(l, r)
-		alpha, R = compute_alpha_and_R(r, l)
+		alpha = compute_alpha(r, l)
+		rad = compute_radius(alpha)
 		sin_theta, cos_theta, sin_new_theta, cos_new_theta, new_theta = compute_sin_and_cos(theta, alpha)
-		transposition = R + (w/2)
+		transposition = rad + (w/2)
 		C = X - transposition*np.array([sin_theta, -1*cos_theta])
 		X = C + transposition*np.array([sin_new_theta, -cos_new_theta])
 		return X, new_theta

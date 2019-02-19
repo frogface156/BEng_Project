@@ -4,19 +4,23 @@ import time
 class encoder_handler(object):
 
 	def __init__(self):
-		self.la_pin = 36
-		self.lb_pin = 38
-		self.ra_pin = 32
-		self.rb_pin = 26
+#		self.la_pin = 36 # BOARD
+#		self.lb_pin = 38
+#		self.ra_pin = 32
+#		self.rb_pin = 26
+		self.la_pin = 16 # BCM
+		self.lb_pin = 20
+		self.ra_pin = 12
+		self.rb_pin = 7
 		self.ticks = [0, 0]
 		self.ticks_last = [0, 0]
-		self.tick_count = [0, 0]
+		self.dt_ticks = [0, 0]
 		self.gpio_setup()
 		self.read_pins()
 		self.init_states()
 
 	def gpio_setup(self):
-		gpio.setmode(gpio.BOARD)
+#		gpio.setmode(gpio.BOARD) # Already set mode to BCM in IMU code?
 		gpio.setup(self.la_pin, gpio.IN, pull_up_down = gpio.PUD_DOWN)
 		gpio.setup(self.lb_pin, gpio.IN, pull_up_down = gpio.PUD_DOWN)
 		gpio.setup(self.ra_pin, gpio.IN, pull_up_down = gpio.PUD_DOWN)
@@ -91,9 +95,6 @@ class encoder_handler(object):
 		self.lb_old = self.lb
 		self.ra_old = self.ra
 		self.rb_old = self.rb
-#		if self.update_ticks_last:
-#			self.ticks_last[0] += self.ticks[0]
-#			self.ticks_last[1] += self.ticks[1]
 
 	def display_tick_count(self):
 		print("Ticks: {}".format(self.ticks))

@@ -1,5 +1,5 @@
-#import imu_sensor
-#import i2c_class
+import imu_sensor
+import i2c_class
 import encoders
 import encoder_matrix_test as emt
 import numpy as np
@@ -12,59 +12,55 @@ x_0 = 0
 y_0 = 0
 theta = 0
 X = np.array([x_0, y_0])
-dt_start = time.time()
-dt_end = time.time()
-start_time = time.time()
-freq = 4
-dt = 1/freq # only logging every dt seconds (so log isn't full of repeated info!)
+
+freq = 0.5
+dt_thresh = 1/freq
+
 motor_ticks = [0, 0]
 
 date = datetime.datetime.now().strftime("%H-%M-%S-%B-%d-%Y")
 path = "sensor_tests/"
-file = "motor_ticks_"
+motor_file = "motor_ticks_"
+camera_file = "camera_coords_"
+imu_file = "imu_"
 extension = ".csv"
 file_num = 1
-log_file_path = path + file + date + extension
 counter = 1
 
-# initiate classes (i2c - LIDAR and Encoders, IMU) - perhaps not in this main script actually... rather in sub-scripts
+def get_file_path(sensor_file):
+	log_file_path = path + sensor_file + date + extension
+	return log_file_path
+
 enc = encoders.encoder_handler()
+IMU = imu_sensor.IMU()
 
-# arduino = i2c_class.I2C(0x08)
-# imu = i2c_class.I2C(0x40)
-
-ticks, ticks_last, ticks_dt = [0, 0], [0, 0], [0, 0]
-
-def get_ticks_dt(ticks, ticks_last):
-#	print("TEST: Ticks - {}\t Ticks_Last: {}".format(ticks, ticks_last))
-	ticks_dt[0] = ticks[0] - ticks_last[0]
-	ticks_dt[1] = ticks[1] - ticks_last[1]
-	return ticks_dt
-
+start = time.time()
+end = time.time()
+dt_time = end - start
 
 while True:
-	if (dt_end - dt_start) >= dt:
-		time_at_reading = time.time() - start_time
-#		motor_ticks[0] = enc.last_ticks[0] + enc.dt_ticks[0]
-		ticks_dt = get_ticks_dt(ticks, ticks_last)
-		print("Ticks: {}\tLast Ticks: {}\tDt Ticks: {}".format(ticks, ticks_last, ticks_dt))
-#		motor_ticks[1] = enc.last_ticks[1] + enc.dt_ticks[1]
-#		print("L: {}\tR: {}".format(enc.dt_ticks[0], enc.dt_ticks[1]))
-#		X, theta = emt.return_new_pose(X, theta, enc.dt_ticks[0], enc.dt_ticks[1])
-#		print("x: {}\ty: {}\ttheta: {}".format(X[0], X[1], theta))
-		rl.log_motor_ticks(log_file_path, time_at_reading, ticks)
-#		enc.print_ticks()
-#		print("Time: {}s".format(time_at_reading))
-		dt_start = time.time()
-		ticks_last = ticks
-		print("TEST - Last Ticks: {}".format(ticks_last))
-		ticks = enc.update()
-		print("TEST - Ticks: {}".format(ticks))
-	else:
-		enc.update()
 
-	dt_end = time.time()
+	'''
+	if dt_time >= dt_thresh:
+		enc.ticks_last = enc.ticks
+		start = time.time()
+	enc.return_motor_info() # update ticks
+	enc.dt_ticks[0] = enc.ticks[0] - enc.ticks_last[0]
+	enc.dt_ticks[1] = enc.ticks[1] - enc.ticks_last[1]
+	end = time.time()
+	dt_time = end - start
+	print("Ticks_Last: {}".format(enc.ticks_last))
+	print("Ticks_dt: {}".format(enc.dt_ticks))
+	'''
 
-	# compute position from IMU linear acceleration data (and other data e.g. orientation, rotation etc.?) + save values
-	# compute optimal estimate for position based on encoders and IMU + save values
-
+	# Gather sample data loop (no processing / jumping time-steps)
+	ticks = enc.return_motor_info() # update ticks
+	dt_time = time.time() - start
+	print("Ticks: {}\tTime: {}".format(ticks, dt_time))
+	rl.log_motor_ticks(get_file_path(motor_file), dt_time, ticks) # log ticks
+	lin_acc = IMU.linear_acceleration
+	heading, roll, pitch = IMU.euler
+	dt_time = time.time() - start
+	print("Lin_Acc: {}\tHeading: {}, Time: {}".format(lin_acc, heading, dt_time))
+	rl.log_imu(get_file_path(imu_file), dt_time, lin_acc, heading) # log imu
+	print()
