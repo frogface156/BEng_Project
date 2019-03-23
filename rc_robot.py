@@ -343,7 +343,7 @@ if __name__ == '__main__':
 				tank.joy_y_l = joystick.get_axis(1) # get vertical data for left analogue
 				tank.joy_x_r = joystick.get_axis(2) # get horizontal data for right analogue
 
-		
+
 				# act on these joystick and button values
 				tank.process_input()
 
