@@ -18,12 +18,21 @@ verbose_mode = True
 alert_mode = False
 
 # pin references
-in_1 = 12
-in_2 = 13
-in_3 = 7
-in_4 = 11
-en_a = 21
-en_b = 15
+#in_1 = 12
+#in_2 = 13
+#in_3 = 7
+#in_4 = 11
+#en_a = 21
+#en_b = 15
+
+
+# change the code later so you can easily adjust the OUT1,2,3,4 and modify in code (because the ins didn't actually change, I just had to switch them in code, which isn't ideal)
+in_1 = 7
+in_2 = 11
+in_3 = 12
+in_4 = 13
+en_a = 15
+en_b = 21
 
 trig = 18
 echo = 22

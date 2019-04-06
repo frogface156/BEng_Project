@@ -1,0 +1,32 @@
+Priority: 1-10 (low to high)
+
+1. Clean up rc_robot.py and allow it to allow external code to use it - 4 (you can remote control for a bit...)
+2. Fix encoder model and implement! - 8 - DONE! - Might need reevaluation... :'(
+3. Test individual state_space libraries - 9 - DONE!
+	Check your matrices for H and R
+	Include biases
+4. Test kalman.py functions with dummy matrices - 9 - DONE!
+5. Test main.py, not using slow_thread (comment it out for now) - 7 - DONE!
+	Make sure it all runs (doesn't matter about the numbers, just that the matrices are the right dimensions etc.)
+	Get an idea of maximum loop speed
+6. Write Lidar code in C++ - 6 - DONE!
+	This will be tough, but you can do it!
+7. Write Lidar class / library in python - 6
+	Use YouTube videos for help with this - but don't delay!
+8. Derive sigma and bias values for everything and record data as csv, graph it etc. - 7
+	IMU - fresh data for a_x, a_y, sigma - sigma and bias. Run the IMU stationary over a period of time. Record results as csv. # DONE!
+	    - also look at the data sheet and see what it expects for sigmas and biases
+	Odometry - get parameters: ticks_to_mm - go straight
+		 - x, y position - run tests going straight, run tests taking curves and ending up at final position. Log number of measurements and divide final error by this number
+		 - theta - run tests going straight - error for that test = final error / no.steps. Final error = theta_final - reading for IMU theta (+/- sigma_theta) Repeat test many times
+			 - run tests with simple curves - same as above. Repeat many times
+			 - run tests with just rotation - does the algorithm still work? If so, get error. Repeat many times.
+		 - I don't believe this needs a bias correction, since data should be accurate (provided ticks_to_mm is accurate)
+	Lidar - need error of each distance measurement? Look at data sheet for these... experiments are too much hassle
+	      - translate this error into overall position error - this might be a pain. Probs better to just do it through experimentation and testing. e.g. This was previous position; move, tell me new position, find error etc. It is an absolute measurement so error doesn't propogate -> error is for that timestep only
+9. Write A* algorithm - see YouTube videos for help with this - 4
+10. Add licencing to all your code and reupload to GitHub! - 3
+11. Change IMU sensor so it uses the z-axis instead (because of biases in x-axis)
+12. Check units in all programs!!! - 7
+13. Program escape routines for autonomous movement (check for steep tilt / roll angles, check whether robot is stuck etc.)
+

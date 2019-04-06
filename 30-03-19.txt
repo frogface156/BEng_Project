@@ -1,0 +1,19 @@
+Today's Goal: Be able to predict the robot's position when controlling with the PS4 Controller
+
+Steps:
+- DONE - Get ticks_to_mm (almost there, gather some more data, get standard deviation?). Perform 10 more tests, see if value has converged for 2dp.
+- Work out what is going wrong with the odometry
+	- Gather tick data - run the data through the oss function and see where stuff gets weird...
+- Get odometry position sigmas for x, y and theta - Run a range of tests (create lateral ruler too). Theta isn't THAT important since IMU is very reliable for angle
+- Reorient IMU sensor and use z-axis and the respective euler angle (get sigma data for new theta)
+- Check that all the errors are propagated correctly e.g. for IMU, has the acceleration error been integrated for velocity and twice for position?
+- Check that the data for IMU x and y acceleration is being converted to position correctly - Is it being adjusted for angle (I think it's not atm :O!)?
+- Check whether the errors in IMU accel are being applied wrt theta too... could be a pain to not realise this! R might be dynamic for IMU AND Odometry... The error for x position might be composed of sin(theta) error y, cos(theta) error x
+- Make sure that the angles are initialised properly and that the coordinate frames are right wrt each other... (I think they aren't rn...)
+	- The axes being used are dependent on the start position and angle. This is initialised as x axis, y axis, theta=0
+	- Check whether the y axis is forwards and how this affects the odometry model (if at all...)
+- Test 1: Write mini script to plot the position of robot (with variances?) in real time (and also log all data for later use / analysis)
+	- Are there any glaring issues? (Probably...)
+	- If these are solved, work on adjusting the "width" parameter to better fit the odometry data.
+		- Further to this, might be a good idea to just use encoder x, y position and use theta from IMU to obtain accurate (ish) data to adjust width parameter from (instead of relying on the pose from the theta value derived from the encoders...). IDK, try both!
+- Re-evaluate stuff and make new plan!

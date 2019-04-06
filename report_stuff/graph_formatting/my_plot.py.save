@@ -1,0 +1,9 @@
+def set_size(width, fraction=1, subplot=[1, 1]):
+	# Width of figure
+	fig_width_pt = width * fraction
+
+	# Convert from pt to inches
+	inches_per_pt = 1 / 72.27
+
+	# Convert from pt to inches
+	golden_ratio = (5**.5 - 1) / 2
