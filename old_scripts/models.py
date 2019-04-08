@@ -26,7 +26,7 @@ class IMUStateSpace(object):
 		theta = np.radians(theta - self.theta_bias) % 2*np.pi # radians
 		u = np.array([[a_x, a_y, theta]]).T
 
-		z = np.dot(self.A, x) + np.dot(self.B, u)
+		z = np.dot(A, x) + np.dot(B, u)
 
 		return z
 
@@ -35,7 +35,7 @@ class OdometryStateSpace(object):
 	def __init__(self):
 		self.sig_position2 = Config['odometry']['sig_position2']
 		self.sig_theta2 = Config['odometry']['sig_theta2']
-		self.b = Config['odometry']['wheel_base']
+		self.width = Config['odometry']['width']
 		self.ticks_to_mm_l = Config['odometry']['ticks_to_mm']
 		self.ticks_to_mm_r = Config['odometry']['ticks_to_mm']
 
@@ -49,11 +49,11 @@ class OdometryStateSpace(object):
 		return l_mm, r_mm
 
 	def get_alpha(self, l, r):
-		alpha = (r - l) / self.b
+		alpha = (r - l) / self.width
 
 		return alpha
 
-	def get_radius(self, l, alpha):
+	def get_radius(self, alpha, l):
 		rad = l / alpha # "L" not "One"
 
 		return rad
@@ -64,21 +64,20 @@ class OdometryStateSpace(object):
 		x_old = x[0][0]
 		y_old = x[2][0]
 		if l == r:
-			x_p = x_old + l * np.cos(theta) # theta_prime = theta (so save computation...)
+			x_p = x_old + l*np.cos(theta) # theta_prime = theta (so save computation...)
 			y_p = y_old + l * np.sin(theta)
 			vx_p = (x_p - x_old) / dt
 			vy_p = (y_p - y_old) / dt
 			z = np.array([[x_p, vx_p, y_p, vy_p, theta]]).T
 
 			return z
-
 		else: # l != r
 			alpha = self.get_alpha(l, r)
-			rad = self.get_radius(l, alpha)
-			theta_p = (theta + alpha) % (2*np.pi)
-			transposition = rad + (self.b / 2)
+			rad = self.get_radius(alpha, l)
+			theta_p = (theta + alpha) % 2*np.pi
+			transposition = rad + (self.width / 2)
 			x_p = x_old + transposition * (np.sin(theta_p) - np.sin(theta))
-			y_p = y_old - transposition * (np.cos(theta_p) - np.cos(theta))
+			y_p = y_old + transposition * (np.cos(theta) - np.cos(theta_p))
 			vx_p = (x_p - x_old) / dt
 			vy_p = (y_p - y_old) / dt
 			z = np.array([[x_p, vx_p, y_p, vy_p, theta_p]]).T
@@ -124,3 +123,4 @@ class RobotStateSpace(object):
 		self.sig_trans2 = Config['robot']['sig_trans2']
 		self.Q = self.sig_trans2*np.eye(5) # DUMMY MATRIX - will need to get values from testing
 		self.A = np.array([[1, dt, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, dt, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]])
+

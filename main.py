@@ -9,7 +9,8 @@ from pygame.time import Clock
 # My Libraries
 from Config import Config
 import sensors
-import models
+#import models
+import models_temp as models
 import kalman
 
 # Initial Conditions Matrix Setup
@@ -49,11 +50,19 @@ def fast_loop(print_lock, state_vector_lock, path_planning_lock, imu, enc):
 	# might be worth having an "initial" loop to sort out accleration / dt issues?
 	imu_a_x = 0 # first time, shouldn't be measured before the prediction because it hasn't been any time yet!
 	imu_a_y = 0
+	start = time.time()
 	while True:
+		period = time.time() - start
+		actual_freq = 1 / period
+		with print_lock:
+			print("{}Hz".format(actual_freq))
+		start = time.time()
 		# get imu measurements
 		# consider the fact that acceleration should really predict state (except
 		# theta) for the NEXT timestep...
 		imu_theta = imu.euler[0]
+		global x
+		global P
 		z_i = iss.measure_state(x, imu_a_x, imu_a_y, imu_theta) # get control vector (actually this is for the next loop, but this was the best way of handling the state...)
 		imu_a_x = imu.linear_acceleration[0] # measured AFTER KF so it can be used for the NEXT timestep
 		imu_a_y = imu.linear_acceleration[1]
@@ -93,8 +102,8 @@ def slow_loop(print_lock, text):
 	freq = 10
 	clock = Clock()
 	while True:
-		with print_lock:
-			print("This {} will be taken by the Lidar scanning and Path Planning".format(text))
+#		with print_lock:
+#			print("This {} will be taken by the Lidar scanning and Path Planning".format(text))
 		time.sleep(0.01)
 		clock.tick(freq)
 	# while True:

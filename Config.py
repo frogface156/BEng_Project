@@ -12,7 +12,7 @@ Config = {
 	'odometry': {
 		'sig_position2': 0.1**2, # DUMMY VALUE - populate with test value later...
 		'sig_theta2': 0.1**2, # DUMMY VALUE - populate with test value later...
-		'width': 163, # width of tank tracks - adjust to get a more accurate position tracking
+		'wheel_base': 163, # width of tank tracks - adjust to get a more accurate position tracking
 		'ticks_to_mm': 0.78 # obtained with get_odometry_data.py and get_tick_factor.py
 	},
 	'lidar': {

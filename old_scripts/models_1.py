@@ -23,10 +23,10 @@ class IMUStateSpace(object):
 	def measure_state(self, x, a_x, a_y, theta):
 		a_x = (a_x - self.x_bias) / 1000 # in mm/s^2
 		a_y = (a_y - self.y_bias) / 1000
-		theta = ((theta - self.theta_bias) * np.pi / 180) % 2*np.pi # radians
+		theta = np.radians(theta - self.theta_bias) % 2*np.pi # radians
 		u = np.array([[a_x, a_y, theta]]).T
 
-		z = np.dot(A, x) + np.dot(B, u)
+		z = np.dot(self.A, x) + np.dot(self.B, u)
 
 		return z
 
@@ -35,7 +35,7 @@ class OdometryStateSpace(object):
 	def __init__(self):
 		self.sig_position2 = Config['odometry']['sig_position2']
 		self.sig_theta2 = Config['odometry']['sig_theta2']
-		self.width = Config['odometry']['width']
+		self.b = Config['odometry']['wheel_base']
 		self.ticks_to_mm_l = Config['odometry']['ticks_to_mm']
 		self.ticks_to_mm_r = Config['odometry']['ticks_to_mm']
 
@@ -49,7 +49,7 @@ class OdometryStateSpace(object):
 		return l_mm, r_mm
 
 	def get_alpha(self, l, r):
-		alpha = (r - l) / self.width
+		alpha = (r - l) / self.b
 
 		return alpha
 
@@ -58,42 +58,69 @@ class OdometryStateSpace(object):
 
 		return rad
 
-	def measure_state(self, x, l_t, r_t):
-		l, r = self.ticks_to_mm(l_t, r_t)
+	def measure_state(self, x, l, r):
+		l, r = self.ticks_to_mm(l, r)
 		theta = x[4][0] # [[x, vx, y, vy, theta]]
 		x_old = x[0][0]
 		y_old = x[2][0]
 		if l == r:
-			x_p = x_old + l*np.cos(theta) # theta_prime = theta (so save computation...)
+			x_p = x_old + l * np.cos(theta) # theta_prime = theta (so save computation...)
 			y_p = y_old + l * np.sin(theta)
 			vx_p = (x_p - x_old) / dt
 			vy_p = (y_p - y_old) / dt
 			z = np.array([[x_p, vx_p, y_p, vy_p, theta]]).T
-			alpha = 0
-			rad = None
+
+			return z
 
 		else: # l != r
 			alpha = self.get_alpha(l, r)
 			rad = self.get_radius(alpha, l)
 			theta_p = (theta + alpha) % 2*np.pi
-			transposition = rad + (self.width / 2)
+			transposition = rad + (self.b / 2)
 			x_p = x_old + transposition * (np.sin(theta_p) - np.sin(theta))
-			y_p = y_old + transposition * (np.cos(theta) - np.cos(theta_p))
+			y_p = y_old - transposition * (np.cos(theta_p) - np.cos(theta))
 			vx_p = (x_p - x_old) / dt
 			vy_p = (y_p - y_old) / dt
 			z = np.array([[x_p, vx_p, y_p, vy_p, theta_p]]).T
 
-		return z, [l_t, r_t, l, r, alpha, rad, x[0][0], x[1][0], x[2][0], x[3][0], x[4][0], z[0][0], z[1][0], z[2][0], z[3][0], z[4][0]]
+			return z
 
 class LidarStateSpace(object):
 	def __init__(self):
 		self.sig_position2 = Config['lidar']['sig_position2']
 		self.H = np.array([[1, 0, 0, 0, 0], [0, 0, 1, 0, 0]])
 		self.R = np.array([[self.sig_position2, 0], [0, self.sig_position2]])
+		self.radians = self.get_radians_array() # don't want to compute this each time...
+
+	def get_point_coords(self, scan):
+		point_coords = []
+		for i, dist in enumerate(scan):
+			x = -1 * dist * np.sin(self.radians[i])
+			y = -1 * dist * np.cos(self.radians[i])
+			point_coords.append((x, y))
+
+		return point_coords # list of (x, y) tuples
+
+	def get_obstacles(self, scan): # similar to get_point_coords() but includes obstacle width based on angle and distance
+		obstacles = []
+		for i, dist in enumerate(scan):
+			x = -1 * dist * np.sin(self.radians[i])
+			y = -1 * dist * np.cos(self.radians[i])
+			width = np.radians(1) * dist # l*theta (theta = resolution = 1 deg)
+			obstacles.append((x, y, width))
+
+		return obstacles # list of (x, y, width) tuples
+
+	@staticmethod
+	def get_radians_array():
+		radians = []
+		for i in range(360):
+			radians.append(np.radians(i))
+
+		return radians
 
 class RobotStateSpace(object):
 	def __init__(self):
 		self.sig_trans2 = Config['robot']['sig_trans2']
 		self.Q = self.sig_trans2*np.eye(5) # DUMMY MATRIX - will need to get values from testing
 		self.A = np.array([[1, dt, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, dt, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]])
-
