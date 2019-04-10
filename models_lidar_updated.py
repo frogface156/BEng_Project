@@ -106,7 +106,7 @@ class LidarStateSpace(object):
 
 	def get_obstacles(self, scan, heading): # returns array of obstacles with their widths
 		obstacles = []
-		for theta, dist in scan:
+		for theta, dist in enumerate(scan):
 			theta_w = ((heading + np.pi) - np.radians(angle)) % (2*np.pi)
 			x_w = dist * np.cos(theta_w)
 			y_w = dist * np.sin(theta_w)
