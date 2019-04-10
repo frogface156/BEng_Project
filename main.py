@@ -9,7 +9,6 @@ from pygame.time import Clock
 # My Libraries
 from Config import Config
 import sensors
-#import models
 import models
 import kalman
 
