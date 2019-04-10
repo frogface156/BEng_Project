@@ -1,10 +1,9 @@
 import kalman
 import numpy as np
+import sensors
+import models
 import random
 from Config import Config
-import robot_state_space as rss
-import imu_state_space as iss
-import odometry_state_space as oss
 from pygame.time import Clock
 import imu_sensor
 import encoders
@@ -24,20 +23,14 @@ init_p = Config['test']['initial_probabilities']
 x = np.array([[init_s['x_0'], init_s['vx_0'], init_s['y_0'], init_s['vy_0'], init_s['theta_0']]]).T
 P = np.array([[init_p['p0_x'], 0, 0, 0, 0], [0, init_p['p0_vx'], 0, 0, 0], [0, 0, init_p['p0_y'], 0, 0], [0, 0, 0, init_p['p0_vy'], 0], [0, 0, 0, 0, init_p['p0_theta']]])
 
-# Robot
-Q = rss.Q
-A = rss.A
+# Sensors
+imu = sensors.IMU()
+enc = sensors.Encoders()
 
-# IMU
-H_i = iss.H
-R_i = iss.R
-
-# Odometry
-H_o = oss.H
-R_o = oss.R
-
-imu = imu_sensor.IMU()
-enc = encoders.Encoders()
+# Models
+rss = models.RobotStateSpace()
+iss = models.IMUStateSpace()
+oss = models.OdometryStateSpace()
 
 x_predictions, x_corrections, x_imu_measurements, x_odo_measurements = [], [], [], []
 y_predictions, y_corrections, y_imu_measurements, y_odo_measurements = [], [], [], []

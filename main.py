@@ -10,7 +10,7 @@ from pygame.time import Clock
 from Config import Config
 import sensors
 #import models
-import models_temp as models
+import models
 import kalman
 
 # Initial Conditions Matrix Setup

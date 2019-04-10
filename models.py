@@ -6,25 +6,37 @@ dt = 1 / freq
 
 class IMUStateSpace(object):
 	def __init__(self):
-		self.sig_x2 = Config['imu']['sig_x2']
+		self.sig_x2 = Config['imu']['sig_x2'] # sig^2 of IMU 'x'_axis accel -> needs converting to world coords and update R for each loop...
 		self.sig_y2 = Config['imu']['sig_y2']
-		self.sig_theta2 = Config['imu']['sig_theta2']
+		self.sig_theta2 = np.radians(Config['imu']['sig_theta2'])
 
 		self.x_bias = Config['imu']['x_bias']
 		self.y_bias = Config['imu']['y_bias']
-		self.theta_bias = Config['imu']['theta_bias']
+		self.theta_bias = Config['imu']['theta_bias'] # degrees (processed before radians conversion)
 
-		self.A = np.array([[1, dt, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, dt, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]])
+		self.A = np.array([[1, dt, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, dt, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 0]])
 		self.B = np.array([[0.5*dt**2, 0, 0], [dt, 0, 0], [0, 0.5*dt**2, 0], [0, dt, 0], [0, 0, 1]])
 
 		self.H = np.array([[1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]])
 		self.R = np.array([[0.5*(dt**2)*self.sig_x2, 0, 0, 0, 0], [0, dt*self.sig_x2, 0, 0, 0], [0, 0, 0.5*(dt**2)*self.sig_y2, 0, 0], [0, 0, 0, dt*self.sig_y2, 0], [0, 0, 0, 0, self.sig_theta2]])
 
-	def measure_state(self, x, a_x, a_y, theta):
-		a_x = (a_x - self.x_bias) / 1000 # in mm/s^2
-		a_y = (a_y - self.y_bias) / 1000
-		theta = np.radians(theta - self.theta_bias) % 2*np.pi # radians
-		u = np.array([[a_x, a_y, theta]]).T
+	def measure_state(self, x, a_xi, a_yi, theta):
+		# Raw values - removing bias, converting to correct units and convention directions
+		a_xi = (a_xi - self.x_bias) / 1000 # Acc in IMU frame in mm/s^2
+		a_yi = -1 * (a_yi - self.y_bias) / 1000 # Acc in decided IMU frame y +ve is left, x +ve is forwards
+		theta_w = (-1 * np.radians(theta - self.theta_bias)) % (2*np.pi) # converted to radians and converted to world frame i.e. anticlockwise is +ve
+
+		cos_tw = np.cos(theta_w)
+		sin_tw = np.sin(theta_w)
+
+		self.R[0, 0] = 0.5*(dt**2) * ((self.sig_x2 * cos_tw) - (self.sig_y2 * sin_tw))
+		self.R[1, 1] = dt * ((self.sig_x2 * cos_tw) - (self.sig_y2 * sin_tw))
+		self.R[2, 2] = 0.5*(dt**2) * ((self.sig_x2 * sin_tw) + (self.sig_y2 * cos_tw))
+		self.R[3, 3] = dt * ((self.sig_x2 * sin_tw) + (self.sig_y2 * cos_tw))
+
+		a_xw = (a_xi * cos_tw) - (a_yi * sin_tw))  # Acc in World Frame
+		a_yw = (a_xi * sin_tw) + (a_yi * cos_tw)
+		u = np.array([[a_xw, a_yw, theta_w]]).T
 
 		z = np.dot(self.A, x) + np.dot(self.B, u)
 

@@ -32,9 +32,12 @@ file_path = "/home/pi/BEng_Project/sensor_tests/data/imu/"
 file_name = "40_minutes_imu.csv" # beefy (2.8MB of imu data...)
 lidar_file_path = "/home/pi/BEng_Project/sensor_tests/data/lidar/"
 lidar_file_name = "lidar_scan.csv"
+odo_file_path = "/home/pi/BEng_Project/sensor_tests/data/odometry/"
+odo_file_name = "sample_encoder_data.csv"
 
 file = file_path + file_name
 lidar_file = lidar_file_path + lidar_file_name
+odo_file = odo_file_path + odo_file_name
 
 x_vals = []
 y_vals = []
@@ -44,7 +47,11 @@ theta_b_vals = []
 theta_c_vals = []
 time_vals = []
 lidar_vals = []
-dt = 1 / 32
+l_vals = []
+r_vals = []
+odo_time_vals = []
+dt_imu = 1 / 32
+dt_odo = 1 / 50
 counter = 0
 
 '''
@@ -57,16 +64,24 @@ with open(file, "r") as f:
 		theta_a_vals.append(float(row[3]))
 		theta_b_vals.append(float(row[4]))
 		theta_c_vals.append(float(row[5]))
-		time_vals.append(dt * counter)
+		time_vals.append(dt_imu * counter)
 		counter += 1
 '''
 
+'''
 with open(lidar_file, "r") as f:
 	reader = csv.reader(f)
 	for x, row in enumerate(reader):
 		lidar_vals.append([])
 		for i in range(360):
 			lidar_vals[x].append(float(row[i]))
+'''
+
+with open(odo_file, "r") as f:
+	reader = csv.reader(f)
+	for row in reader:
+		l_vals.append(int(row[0]))
+		r_vals.append(int(row[1]))
 
 # x = np.linspace(0, 2*np.pi, 100) # from example...
 
@@ -126,6 +141,20 @@ def imu_time_plot(time_vals, data_vals, title):
 	ax1.set_title(title)
 	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/imu_plot_{}.pdf'.format(title), format='pdf', bbox_inches='tight')
 
+def imu_time_plot_multiple(time_vals, x_vals, y_vals, z_vals):
+	fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=set_size(width, subplot=[1, 3]))
+	ax1.plot(time_vals, x_vals)
+	ax1.set_xlabel(r'Time $(s)$')
+	ax1.set_ylabel(r'Acceleration $(m/{s^2})$')
+	ax1.set_title(r'x-axis')
+	ax2.plot(time_vals, y_vals)
+	ax2.set_xlabel(r'Time $(s)$')
+	ax2.set_title(r'y-axis')
+	ax3.plot(time_vals, z_vals)
+	ax3.set_xlabel(r'Time $(s)$')
+	ax3.set_title(r'z-axis')
+	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/imu_plot_multiple.pdf', format='pdf', bbox_inches='tight')
+
 def imu_hist_plot(data_vals, title, x_axis_limits=None):
 	fig, ax1 = plt.subplots(1, 1, figsize=set_size(width, subplot=[1, 1]))
 	ax1.hist(np.array(data_vals), bins=280, edgecolor = 'black')
@@ -165,17 +194,30 @@ def lidar_plots(data_scan, title):
 	ax2.set_title(r'Lidar Scan - Real World Coordinates')
 	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/lidar_plot_{}.pdf'.format(title), format='pdf', bbox_inches='tight')
 
+def encoder_plot_lr(l_vals, r_vals):
+	fig, ax1 = plt.subplots(1, 1, figsize=set_size(width, subplot=[1, 1]))
+	ax1.plot(l_vals)
+	ax1.plot(r_vals)
+	ax1.set_xlabel(r'Samples')
+	ax1.set_ylabel(r'Encoder Ticks')
+	ax1.set_title(r'Quadrature Encoder Sample Data')
+	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/encoder_plot_lr.pdf', format='pdf', bbox_inches='tight')
+
 def main():
 	start = time.time()
 #	imu_time_plot(time_vals, x_vals, r'x-axis')
 #	imu_time_plot(time_vals, y_vals, r'y-axis')
 #	imu_time_plot(time_vals, z_vals, r'z-axis')
 
+#	imu_time_plot_multiple(time_vals, x_vals, y_vals, z_vals)
+
 #	imu_hist_plot(x_vals, r'x-axis', (-0.5, 1.50))
 #	imu_hist_plot(y_vals, r'y-axis', (-0.25, 0.25))
 #	imu_hist_plot(z_vals, r'z-axis', (-0.25, 0.25))
-	for i, scan in enumerate(lidar_vals):
-		lidar_plots(scan, i)
+#	for i, scan in enumerate(lidar_vals):
+#		lidar_plots(scan, i)
+
+	encoder_plot_lr(l_vals, r_vals)
 
 	period = time.time() - start
 	print("Took {} seconds".format(period))

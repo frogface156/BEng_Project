@@ -21,10 +21,12 @@ init_p = Config['test']['initial_probabilities']
 x = np.array([[init_s['x_0'], init_s['vx_0'], init_s['y_0'], init_s['vy_0'], init_s['theta_0']]]).T
 P = np.array([[init_p['p0_x'], 0, 0, 0, 0], [0, init_p['p0_vx'], 0, 0, 0], [0, 0, init_p['p0_y'], 0, 0], [0, 0, 0, init_p['p0_vy'], 0], [0, 0, 0, 0, init_p['p0_theta']]])
 
+# Sensors
+enc = sensors.Encoders()
+
+# Models
 rss = models.RobotStateSpace()
 oss = models.OdometryStateSpace()
-
-enc = sensors.Encoders()
 
 x_predictions, x_corrections, x_measurements = [], [], []
 y_predictions, y_corrections, y_measurements = [], [], []
@@ -47,9 +49,11 @@ for i in range(N):
 
 	clock.tick(freq)
 
-plt.plot(x_predictions, label='State Prediction')
-plt.plot(x_measurements, label='Odometry Measurement')
-plt.plot(x_corrections, label='Odometry Correction')
+#plt.plot(x_predictions, label='State Prediction')
+#plt.plot(x_measurements, label='Odometry Measurement')
+#plt.plot(x_corrections, label='Odometry Correction')
+plt.scatter(x_corrections, y_corrections)
+
 plt.legend()
 plt.title("Kalman Filter - Odometry Test")
 
