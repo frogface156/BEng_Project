@@ -104,7 +104,7 @@ class LidarStateSpace(object):
 		self.R = np.array([[self.sig_position2, 0], [0, self.sig_position2]])
 		self.radians = self.get_radians_array() # don't want to compute this each time...
 
-	def get_obstacles(self, scan, heading): # returns array of obstacles with their widths
+	def get_obstacles(self, scan, heading): # returns array of obstacles (with their widths) relative to the lidar's position - need to translate this to world coords by translating this distance with reference to the centre of the robot, then adding the robot's position
 		obstacles = []
 		for theta, dist in enumerate(scan):
 			theta_w = ((heading + np.pi) - np.radians(angle)) % (2*np.pi)
