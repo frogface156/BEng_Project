@@ -14,7 +14,7 @@ time_elapsed = 0
 
 imu = sensors.IMU()
 
-time.sleep(20) # to make sure I don't disturb the data!
+time.sleep(2) # to make sure I don't disturb the data!
 
 start_time = time.time()
 

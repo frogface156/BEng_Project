@@ -19,17 +19,22 @@ class Encoders(object):
 	def __init__(self, addr=0x48):
 		self.i2c = I2C(addr)
 		self.delay = 0.01 # to allow hardware to keep up with software
+		self.get_ticks() # clear stored data in arduino
 
 	def get_ticks(self):
 		#self.i2c.write_number(5) # need to write a byte to call the response
-		#time.sleep(self.delay) # need to delay to allow hardware to keep up with software
-		ticks = self.i2c.read_block(2) # 2 bytes of data to read (we are assuming that t$
-		ticks[0] -= 128
-		ticks[1] -= 128
+		time.sleep(self.delay) # need to delay to allow hardware to keep up with software
+		try:
+			ticks = self.i2c.read_block(2) # 2 bytes of data to read (we are assuming that t$
+			#time.sleep(self.delay)
+			ticks[0] -= 128
+			ticks[1] -= 128
+		except OSError:
+			ticks = [999, 999]
 
 		return ticks[0], ticks[1] # left and right ticks since last call
 
-class LidarScanner(object):
+class Lidar(object):
 	def __init__(self, addr=0x08):
 		self.i2c=I2C(addr)
 		self.delay = 0.01

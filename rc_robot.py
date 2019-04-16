@@ -77,7 +77,7 @@ class robot():
 		self.joy_y_l = 0
 		self.joy_x_r = 0
 		self.headlights_on = False # headlights off
-		self.top_speed = 60 # max PWM duty cycle
+		self.top_speed = 100 # max PWM duty cycle
 		self.motor_freq = 100 # PWM frequency for motors (value obtained from youtube video)
 		self.last_time_loop = 0
 		self.last_time_headlights = 0

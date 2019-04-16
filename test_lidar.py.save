@@ -1,7 +1,6 @@
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from my_plot import set_size
 
 import numpy as np
 import sensors
@@ -27,8 +26,8 @@ for point in obstacles:
 	x_vals.append(point[0])
 	y_vals.append(point[1])
 
-width = 452.9679
-fig, ax1 = plt.subplots(1, 1, figsize=set_size(width, subplot=[1, 1]))
-ax1.scatter(x_vals, y_vals)
-ax1.set_title("Lidar - Detected Obstacles")
-plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/lidar_scan.pdf', format='pdf', bbox_inches='tight')
+
+width = 452.9679fig, ax1 = plt.subplots(1, 1, figsize=set_size(width, subplot=[1, 1]))
+plt.scatter(x_vals, y_vals)
+plt.set_title('Detected Obstacles')
+plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/encoder_plot_lr.pdf

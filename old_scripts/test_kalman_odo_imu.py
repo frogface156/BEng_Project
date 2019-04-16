@@ -59,7 +59,7 @@ for i in range(N):
 	x_corrections.append(x[0][0])
 	y_corrections.append(x[2][0])
 
-	imu_a_x = imu.linear_acceleration[0]
+	imu_a_x = imu.linear_acceleration[2]
 	imu_a_y = imu.linear_acceleration[1]
 
 	clock.tick(freq)

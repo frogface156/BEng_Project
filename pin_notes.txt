@@ -1,0 +1,24 @@
+in_1: 13 - 7 - red
+in_2: 12 - 11 - black
+in_3: 11 - 12 - red
+in_4: 7 - 13 - black
+en_a: 21 - 15
+en_b: 15 - 21
+
+self.forwards = ["forwards", False, True, True, False]
+self.backwards = ["backwards", True, False, False, True]
+self.spin_left = ["spin left", True, False, True, False]
+self.spin_right = ["spin right", False, True, False, True]
+self.stopped = ["stopped", False, False, False, False]
+
+fowards: [7 Off, 11 On, 12 On, 13, Off]
+back: [7 On, 11 Off, 12 Off, 13 On]
+spin_left: [7 On, 11 Off, 12 On, 13 Off]
+spin_right: [7 Off, 11 On, 12 Off, 13 On]
+stopped: all off
+
+new reference directions:
+forwards: ["f", False, True, True, False]
+backwards: ["b", True, False, False, True]
+spin_left: ["sl", False, True, False, True]
+spin_right: ["sr", True, False, True, False]

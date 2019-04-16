@@ -6,7 +6,7 @@ import pandas as pd
 
 file = input("File name: ")
 
-file_path = "/home/pi/BEng_Project/sensor_tests/{}.csv".format(file)
+file_path = "/home/pi/BEng_Project/sensor_tests/data/imu/{}.csv".format(file)
 
 x_vals = []
 y_vals = []

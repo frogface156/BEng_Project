@@ -29,7 +29,7 @@ class IMUStateSpace(object):
 
 		self.H = np.array([[1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]])
 #		self.R = np.array([[0.5*(dt**2)*self.sig_x2, 0, 0, 0, 0], [0, dt*self.sig_x2, 0, 0, 0], [0, 0, 0.5*(dt**2)*self.sig_y2, 0, 0], [0, 0, 0, dt*self.sig_y2, 0], [0, 0, 0, 0, self.sig_theta2]])
-		self.R = np.array([[999, 0, 0, 0, 0], [0, 999, 0, 0, 0], [0, 0, 999, 0, 0], [0, 0, 0, 999, 0], [0, 0, 0, 0, self.sig_theta2]]) # artificial values, from educated guess
+		self.R = np.array([[0.9, 0, 0, 0, 0], [0, 0.8, 0, 0, 0], [0, 0, 0.9, 0, 0], [0, 0, 0, 0.8, 0], [0, 0, 0, 0, self.sig_theta2]]) # artificial values, from educated guess
 
 	def clean_input(self, a_xi, a_yi, theta_i):
 		if abs(theta_i - self.theta_i_prev) > self.theta_thresh:

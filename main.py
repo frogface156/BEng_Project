@@ -64,11 +64,12 @@ def fast_loop(print_lock, state_vector_lock, path_planning_lock, imu, enc):
 		global x
 		global P
 		z_i = iss.measure_state(x, imu_a_x, imu_a_y, imu_theta) # get control vector (actually this is for the next loop, but this was the best way of handling the state...)
-		imu_a_x = imu.linear_acceleration[0] # measured AFTER KF so it can be used for the NEXT timestep
+		imu_a_x = imu.linear_acceleration[2] # measured AFTER KF so it can be used for the NEXT timestep
 		imu_a_y = imu.linear_acceleration[1]
 
 		# get odometry measurements
-		l_ticks, r_ticks = enc.get_ticks()
+		l_ticks, r_ticks = enc.get_ticks() # ticks = encoder counts
+		l_ticks, r_ticks = oss.clean_input(l_ticks, r_ticks) # removes noise if present
 		z_o = oss.measure_state(x, l_ticks, r_ticks)
 
 		# get lidar measurements
