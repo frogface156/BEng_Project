@@ -29,18 +29,27 @@ Config = {
 		'sig_trans2': 0.5**2 # DUMMY VALUE - populate with test value later...
 	},
 	'control': {
-		'top_speed': 100, # max PWM code can output (actual maximum is 100)
+		'top_speed': 80, # max PWM code can output (actual maximum is 100)
+		'bottom_speed': 10,
 		'motor_freq': 100, # PWM frequency (100 is good)
 		'high_speed': 100, # PWM of the dominant motor for turning
 		'low_speed': 10, # PWM of the submissive motor for turning
 		'left_boost_factor': 1.5, # boost given to the left motor because it is weaker - would use PID controller but I don't have time :'(
-		'pin_refs': {
+		'board_pin_refs': {
 			'in_1': 13,
 			'in_2': 12,
 			'in_3': 11,
 			'in_4': 7,
 			'en_a': 21,
 			'en_b': 15,
+		},
+		'bcm_pin_refs': {
+			'in_1': 27,
+			'in_2': 18,
+			'in_3': 17,
+			'in_4': 4,
+			'en_a': 22,
+			'en_b': 9,
 		},
 		'move_directions': {
 			'forwards': {
@@ -62,6 +71,15 @@ Config = {
 				'in_4': False
 			}
 		},
+	},
+	'path_planning': {
+		'world_extents': (150, 90),
+		'potential_function': True,
+		'backwards_motion': True,
+		'backwards_cost_multiplier': 3,
+		'obstacle_avoidance_factor': 10,
+		'segment_curvature': 1.0/10,
+		'segment_length': 5.0,
 	},
 	'pygame': {
 		'fast_loop_freq': 80

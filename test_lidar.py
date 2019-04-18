@@ -15,8 +15,8 @@ iss = models.IMUStateSpace()
 obstacles = []
 
 for i in range(1):
-	heading = np.radians(imu.euler[0] - iss.theta_bias) % (2*np.pi)
-	scan = lidar.get_scan(30, 0.04)
+	heading = (-1 * np.radians(imu.euler[0] - iss.theta_bias)) % (2*np.pi)
+	scan = lidar.get_scan(100, 0.04)
 	obstacles = lss.get_obstacles(scan, heading)
 	print(obstacles)
 

@@ -7,7 +7,7 @@ enc.get_ticks()
 
 while True:
 	l, r = enc.get_ticks()
-	if ((l==0) or (r==0) or (l==None) or (r==None)):
+	if (((l==0) and (r==0)) or (l==None) or (r==None)):
 		continue
 	else:
 		l_ticks += l

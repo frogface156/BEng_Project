@@ -7,8 +7,9 @@ from Config import Config
 class Control(object):
 	def __init__(self):
 		self.top_speed = Config['control']['top_speed']
+		self.bottom_speed = Config['control']['bottom_speed']
 		self.motor_freq = Config['control']['motor_freq']
-		self.pin_refs = Config['control']['pin_refs']
+		self.pin_refs = Config['control']['bcm_pin_refs']
 		self.move_directions = Config['control']['move_directions']
 		self.hs = Config['control']['high_speed']
 		self.ls = Config['control']['low_speed']
@@ -19,17 +20,17 @@ class Control(object):
 		self.en_b_pwm = GPIO.PWM(self.pin_refs['en_b'], self.motor_freq)
 
 		self.moves = {
-			'f': (self.hs, self.hs, 'forwards'),
-			'fl': (self.hs, self.ls, 'forwards'),
-			'fr': (self.ls, self.hs, 'forwards'),
-			'b': (self.hs, self.hs, 'backwards'),
-			'bl': (self.hs, self.ls, 'backwards'),
-			'br': (self.ls, self.hs, 'backwards'),
+			'f': (100, 73, 'forwards'),
+			'fl': (30, 100, 'forwards'),
+			'fr': (100, 17, 'forwards'),
+			'b': (100, 75, 'backwards'),
+			'bl': (100, 70, 'backwards'),
+			'br': (100, 13, 'backwards'),
 			'stop': (0, 0, 'stopped')
 		}
 
 	def gpio_setup(self):
-		GPIO.setmode(GPIO.BOARD)
+		GPIO.setmode(GPIO.BCM)
 		for pin in self.pin_refs:
 			GPIO.setup(self.pin_refs[pin], GPIO.OUT)
 
@@ -41,10 +42,11 @@ class Control(object):
 		GPIO.output(self.pin_refs['in_3'], self.move_directions[direction]['in_3'])
 		GPIO.output(self.pin_refs['in_4'], self.move_directions[direction]['in_4'])
 
-	def norm_speed(self, pwm_a, pwm_b):
-		max_pwm = max(pwm_a, pwm_b)
-		pwm_a = (pwm_a * self.top_speed) / max_pwm
-		pwm_b = (pwm_b * self.top_speed) / max_pwm
+	def normalise_speed(self, input_a, input_b):
+		max_input = 100
+		min_input = 0
+		pwm_a = (((input_a - min_input)/(max_input - min_input))*(self.top_speed - self.bottom_speed)) + self.bottom_speed
+		pwm_b = (((input_b - min_input)/(max_input - min_input))*(self.top_speed - self.bottom_speed)) + self.bottom_speed
 
 		return pwm_a, pwm_b
 
@@ -53,19 +55,21 @@ class Control(object):
 		pwm_b = self.moves[dir][1]
 		direction = self.moves[dir][2]
 		for i in range(count):
-			if dir != 'stop':
-				pwm_a, pwm_b = self.norm_speed(pwm_a, pwm_b)
+			#if dir != 'stop':
+			#	pwm_a, pwm_b = self.normalise_speed(pwm_a, pwm_b)
 			self.actuate_motors(pwm_a, pwm_b, direction)
 			time.sleep(0.1)
+	def stop(self):
+		self.move('stop')
+		GPIO.cleanup()
 
 def main():
 	ctrl = Control()
 
-	ctrl.move('f', 5)
+	ctrl.move('fl', 30)
 
 	ctrl.move('stop')
 	GPIO.cleanup()
-
 
 if __name__ == "__main__":
 	main()
