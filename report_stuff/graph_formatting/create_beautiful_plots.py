@@ -32,6 +32,8 @@ file_path = "/home/pi/BEng_Project/sensor_tests/data/imu/"
 file_name = "40_minutes_imu.csv" # beefy (2.8MB of imu data...)
 lidar_file_path = "/home/pi/BEng_Project/sensor_tests/data/lidar/"
 lidar_file_name = "lidar_scan.csv"
+lidar_coords_name = "lidar_coords.csv"
+
 #odo_file_path = "/home/pi/BEng_Project/sensor_tests/data/odometry/"
 odo_file_path = "/home/pi/BEng_Project/sensor_tests/data/kalman/"
 #odo_file_name = "sample_encoder_data.csv"
@@ -45,6 +47,7 @@ odo_pos_file_name = "odometry_test.csv"
 
 file = file_path + file_name
 lidar_file = lidar_file_path + lidar_file_name
+lidar_coords_file = lidar_file_path + lidar_coords_name
 odo_file = odo_file_path + odo_file_name
 odo_pos_file = odo_pos_file_path + odo_pos_file_name
 
@@ -71,9 +74,9 @@ counter = 0
 with open(file, "r") as f:
 	reader = csv.reader(f)
 	for row in reader:
-		x_vals.append(float(row[0]))
-		y_vals.append(float(row[1]))
-		z_vals.append(float(row[2]))
+		x_vals.append(float(row[0])*1000) # mm/s^2 rather than m/s^2
+		y_vals.append(float(row[1])*1000)
+		z_vals.append(float(row[2])*1000)
 		theta_a_vals.append(float(row[3]))
 		theta_b_vals.append(float(row[4]))
 		theta_c_vals.append(float(row[5]))
@@ -88,6 +91,14 @@ with open(lidar_file, "r") as f:
 		lidar_vals.append([])
 		for i in range(360):
 			lidar_vals[x].append(float(row[i]))
+
+lidar_x = []
+lidar_y = []
+with open(lidar_coords_file, "r") as f:
+	reader = csv.reader(f)
+	for row in reader:
+		lidar_x.append(float(row[0]))
+		lidar_y.append(float(row[1]))
 
 
 with open(state_file, "r") as f:
@@ -191,11 +202,11 @@ with open(kalman_file, "r") as f:
 # Save as PDF (no rasterising) and remove excess whitespace
 #plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/imu_plot_z_06-04-19.pdf', format='pdf', bbox_inches='tight')
 
-def imu_time_plot(time_vals, data_vals, title, color='#1f77b4'):
+def imu_time_plot(time_vals, data_vals, title, color='#d62728'):
 	fig, ax1 = plt.subplots(1, 1, figsize=set_size(width, subplot=[1, 1]))
 	ax1.plot(time_vals, data_vals, color=color)
 	ax1.set_xlabel(r'Time $(s)$')
-	ax1.set_ylabel(r'Acceleration $(m/{s^2})$')
+	ax1.set_ylabel(r'Orientation $(deg)$')
 	ax1.set_title(title)
 	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/imu_plot_{}.pdf'.format(title), format='pdf', bbox_inches='tight')
 
@@ -215,29 +226,33 @@ def imu_time_plot_multiple(time_vals, x_vals, y_vals, z_vals):
 
 def imu_hist_plot_multiple(x_vals, y_vals, z_vals):
 	fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=set_size(width, subplot=[1, 3]))
-	ax1.hist(np.array(x_vals), bins=280, edgecolor = 'black', color='#1f77b4')
-	ax1.set_xlabel(r'Acceleration $(m/{s^2})$')
+	ax1.hist(np.array(x_vals), bins=280, edgecolor = 'black', color='#2ca02c')
+	ax1.set_xlabel(r'Acceleration $(mm/{s^2})$')
 	ax1.set_ylabel(r'Frequency')
-	ax1.set_title(r'x-axis')
-	ax1.set_xlim(-0.5, 1.50)
+	ax1.set_title(r'${a_x}_i$')
+	ax1.set_xlim(-250.0, 250.0)
 	ax2.hist(np.array(y_vals), bins=280, edgecolor = 'black', color='#ff7f0e')
-	ax2.set_xlabel(r'Acceleration $(m/{s^2})$')
-	ax2.set_title(r'y-axis')
-	ax2.set_xlim(-0.25, 0.25)
-	ax3.hist(np.array(z_vals), bins=280, edgecolor = 'black', color='#2ca02c')
-	ax3.set_xlabel(r'Acceleration $(m/{s^2})$')
-	ax3.set_title(r'z-axis')
-	ax3.set_xlim(-0.25, 0.25)
+	ax2.set_xlabel(r'Acceleration $(mm/{s^2})$')
+	ax2.set_title(r'${a_y}_i$')
+	ax2.set_xlim(-250.0, 250.0)
+#	ax2.set_ylabel(r'Frequency')
+	ax3.hist(np.array(z_vals), bins=800, edgecolor = 'black', color='#d62728')
+	ax3.set_xlabel(r'Orientation $(deg)$')
+	ax3.set_title(r'$\theta_i$')
+	ax3.set_xlim(335, 385)
+#	ax3.set_ylabel(r'Frequency')
+	plt.subplots_adjust(wspace=0.5)
 	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/imu_hist_multiple.pdf', format='pdf', bbox_inches='tight')
 
 def imu_hist_plot(data_vals, title, x_axis_limits=None, color='#1f77b4'):
 	fig, ax1 = plt.subplots(1, 1, figsize=set_size(width, subplot=[1, 1]))
-	ax1.hist(np.array(data_vals), bins=280, edgecolor = 'black', color=color)
+	ax1.hist(np.array(data_vals), bins=700, edgecolor = 'black', color=color)
 	if x_axis_limits:
 		ax1.set_xlim(x_axis_limits[0], x_axis_limits[1])
-	ax1.set_xlabel(r'Acceleration $(m/{s^2})$')
+	ax1.set_xlabel(r'Orientation $(deg)$')
 	ax1.set_ylabel(r'Frequency')
-	ax1.set_title(title)
+	ax1.set_title(r'\theta_i')
+	#plt.subplots_adjust(wspace = 0.4)
 	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/imu_hist_{}.pdf'.format(title), format='pdf', bbox_inches='tight')
 
 def lidar_plots(data_scan, title):
@@ -269,28 +284,58 @@ def lidar_plots(data_scan, title):
 	ax2.set_title(r'Lidar Scan - Real World Coordinates')
 	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/lidar_plot_{}.pdf'.format(title), format='pdf', bbox_inches='tight')
 
+def lidar_plot_coords(x, y):
+	fig, ax1 = plt.subplots(1, 1, figsize=set_size(width, subplot=[1, 1]))
+	ax1.scatter(x, y, c='#1f77b4')
+	ax1.scatter(0, 0, c='#2ca02c')
+	ax1.arrow(0, 0, 100, 0)
+	max_range = 1792
+	x_lim = []
+	y_lim = []
+	for i in range(360):
+                radians = (i * np.pi / 180)
+                x_lim.append(max_range * np.cos(radians))
+                y_lim.append(max_range * np.sin(radians))
+	ax1.scatter(x_lim, y_lim, c='#ff7f0e')
+	ax1.set_xlabel(r'X (mm)')
+	ax1.set_ylabel(r'Y (mm)')
+	ax1.axis('equal')
+	ax1.set_xlim(-2000, 2000)
+	ax1.set_xlim(-2000, 2000)
+	ax1.set_title(r'Lidar Scan - Real World Coordinates')
+	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/lidar_coords_plot.pdf', format='pdf', bbox_inches='tight')
+
+def lidar_plot_raw_data(data_scan):
+	fig, ax1 = plt.subplots(1, 1, figsize=set_size(width, subplot=[1, 1]))
+	ax1.plot(data_scan, color='#1f77b4')
+	ax1.set_xlabel(r'Angle $(deg)$')
+	ax1.set_ylabel(r'Distance $(mm)$')
+	ax1.set_title(r'Lidar Scan - Distance vs. Angle')
+	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/lidar_plot_raw_data.pdf', format='pdf', bbox_inches='tight')
+
 def encoder_plot_lr(l_vals, r_vals):
 	fig, ax1 = plt.subplots(1, 1, figsize=set_size(width, subplot=[1, 1]))
 	ax1.plot(l_vals, label='Left Encoder')
 	ax1.plot(r_vals, label='Right Encoder')
 	ax1.set_xlabel(r'Samples')
-	ax1.set_ylabel(r'Encoder Ticks')
+	ax1.set_ylabel(r'Encoder Counts')
 	ax1.legend()
 	ax1.set_title(r'Quadrature Encoder Sample Data')
 	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/encoder_plot_lr.pdf', format='pdf', bbox_inches='tight')
 
 def lr_odometry_pos_plot(l_vals, r_vals, x_vals, y_vals):
-	fig, (ax1, ax2) = plt.subplots(2, 1, figsize=set_size(width, subplot=[2, 1]))
+	fig, (ax1, ax2) = plt.subplots(1, 2, figsize=set_size(width, subplot=[1, 2]))
 	ax1.plot(l_vals, label='Left Encoder')
 	ax1.plot(r_vals, label='Right Encoder')
 	ax1.set_xlabel(r'Samples')
-	ax1.set_ylabel(r'Encoder Ticks')
+	ax1.set_ylabel(r'Encoder Counts')
 	ax1.legend()
 	ax1.set_title(r'Quadrature Encoder Data')
 	ax2.scatter(x_vals, y_vals)
-	ax2.set_title(r'Output of Odometry Model')
-	ax2.set_xlabel(r'x-axis (mm)')
-	ax2.set_ylabel(r'y-axis (mm)')
+	ax2.set_title(r'Odometry Model')
+	ax2.set_xlabel(r'x-axis $(mm)$')
+	ax2.set_ylabel(r'y-axis $(mm)$')
+	plt.subplots_adjust(wspace=0.4)
 	plt.savefig('/home/pi/BEng_Project/report_stuff/graph_formatting/lr_odometry_pos_plot.pdf', format='pdf', bbox_inches='tight')
 
 
@@ -315,19 +360,24 @@ def main():
 #	imu_time_plot(time_vals, x_vals, r'x-axis', color='#1f77b4')
 #	imu_time_plot(time_vals, y_vals, r'y-axis', color='#ff7f0e')
 #	imu_time_plot(time_vals, z_vals, r'z-axis', color='#2ca02c')
+#	imu_time_plot(time_vals, theta_a_vals, r'\theta_i', color='#d62728')
 
 #	imu_time_plot_multiple(time_vals, x_vals, y_vals, z_vals)
-#	imu_hist_plot_multiple(x_vals, y_vals, z_vals)
+#	imu_hist_plot_multiple(z_vals, y_vals, theta_a_vals)
 
 
 #	imu_hist_plot(x_vals, r'x-axis', (-0.5, 1.50), color='#1f77b4')
 #	imu_hist_plot(y_vals, r'y-axis', (-0.25, 0.25), color='#ff7f0e')
 #	imu_hist_plot(z_vals, r'z-axis', (-0.25, 0.25), color='#2ca02c')
-#	for i, scan in enumerate(lidar_vals):
-#		lidar_plots(scan, i)
+	imu_hist_plot(theta_a_vals, r'\theta_i', (335, 385), color='#d62728')
 
-	encoder_plot_lr(l_vals, r_vals)
-	lr_odometry_pos_plot(l_vals, r_vals, x_vals_3, y_vals_3)
+#	for scan in enumerate(lidar_vals):
+#		lidar_plots(scan, i)
+#		lidar_plot_raw_data(scan)
+#	lidar_plot_coords(lidar_x, lidar_y)
+
+#	encoder_plot_lr(l_vals, r_vals)
+#	lr_odometry_pos_plot(l_vals, r_vals, x_vals_3, y_vals_3)
 
 #	position_plot(x_vals, y_vals, "200_1082")
 #	compare_plots("x_position", x_pred, x_imu, x_odo, x_corr)

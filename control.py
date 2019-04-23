@@ -22,9 +22,9 @@ class Control(object):
 		self.moves = {
 			'f': (100, 73, 'forwards'),
 			'fl': (30, 100, 'forwards'),
-			'fr': (100, 17, 'forwards'),
+			'fr': (100, 20, 'forwards'),
 			'b': (100, 75, 'backwards'),
-			'bl': (100, 70, 'backwards'),
+			'bl': (30, 100, 'backwards'),
 			'br': (100, 13, 'backwards'),
 			'stop': (0, 0, 'stopped')
 		}
@@ -66,7 +66,19 @@ class Control(object):
 def main():
 	ctrl = Control()
 
-	ctrl.move('fl', 30)
+	y = ['f', 'fl', 'fr']
+	z = ['b', 'bl', 'br']
+#	for x in y:
+#		ctrl.move(x, 5)
+#	ctrl.move('stop')
+#	time.sleep(1)
+
+#	for x in z:
+#		ctrl.move(x, 5)
+#	ctrl.move('br', 30)
+
+	ctrl.move('fr', 20)
+
 
 	ctrl.move('stop')
 	GPIO.cleanup()

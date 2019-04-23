@@ -6,11 +6,16 @@ from Config import Config
 from pygame.time import Clock
 import csv
 
+test_num = input("Test Number: ")
+
 graph_path = Config['logging']['graph_file_path']
 extension = Config['logging']['graph_extension']
-data_path = "/home/pi/BEng_Project/sensor_tests/data/kalman/"
-data_file_name = "raw_data_imu_odo.csv"
+data_path = "/home/pi/BEng_Project/sensor_tests/data/raw_sensor_data/"
+data_file_name = "raw_data_imu_odo_{}.csv".format(test_num)
 data_file = data_path + data_file_name
+
+final_vals_name = "final_values.csv"
+final_vals_file = data_path + final_vals_name
 
 with open(data_file, 'w') as f:
 	writer = csv.writer(f)
@@ -39,23 +44,32 @@ def log_data(file, data):
 
 clock = Clock()
 print("Starting...")
-for i in range(N):
-	data = []
-	enc_l, enc_r = enc.get_ticks()
-#	if ((enc_l==None) or (enc_r==None)):
-#		pass
-#	else:
-	data.append(enc_l)
-	data.append(enc_r)
-	imu_theta = imu.euler[0]
-	data.append(imu_a_x)
-	data.append(imu_a_y)
-	data.append(imu_theta)
-	imu_a_x = imu.linear_acceleration[2] # using the z-axis because x-axis is faulty...
-	imu_a_y = imu.linear_acceleration[1]
+try:
+	for i in range(N):
+		data = []
+		enc_l, enc_r = enc.get_ticks()
+	#	if ((enc_l==None) or (enc_r==None)):
+	#		pass
+	#	else:
+		data.append(enc_l)
+		data.append(enc_r)
+		imu_theta = imu.euler[0]
+		data.append(imu_a_x)
+		data.append(imu_a_y)
+		data.append(imu_theta)
+		imu_a_x = imu.linear_acceleration[2] # using the z-axis because x-axis is faulty...
+		imu_a_y = imu.linear_acceleration[1]
 
-	log_data(data_file, data)
+		log_data(data_file, data)
 
-	clock.tick(freq)
+		clock.tick(freq)
 
+except KeyboardInterrupt:
 
+	final_x = int(input("Final x value: "))
+	final_y = int(input("Final y value: "))
+	final_theta = int(input("Final theta value: "))
+
+	final_data = [final_x, final_y, final_theta]
+
+	log_data(final_vals_file, final_data)
